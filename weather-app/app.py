@@ -4,8 +4,35 @@ truststore.inject_into_ssl()
 
 import requests
 from flask import Flask, jsonify, render_template, request
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 app = Flask(__name__)
+limiter = Limiter(get_remote_address, app=app, default_limits=["60 per minute"])
+
+
+@app.after_request
+def add_security_headers(response):
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
+
+
+def parse_coordinate(raw, min_value, max_value):
+    try:
+        value = float(raw)
+    except (TypeError, ValueError):
+        return None
+    if not (min_value <= value <= max_value):
+        return None
+    return value
+
+
+def parse_lat_lon():
+    lat = parse_coordinate(request.args.get("lat"), -90, 90)
+    lon = parse_coordinate(request.args.get("lon"), -180, 180)
+    return lat, lon
 
 GEOCODE_URL = "https://geocoding-api.open-meteo.com/v1/search"
 REVERSE_GEOCODE_URL = "https://nominatim.openstreetmap.org/reverse"
@@ -53,12 +80,16 @@ def index():
 
 
 @app.route("/api/search")
+@limiter.limit("20 per minute")
 def search_city():
-    name = request.args.get("q", "").strip()
+    name = request.args.get("q", "").strip()[:100]
     if not name:
         return jsonify({"results": []})
-    r = requests.get(GEOCODE_URL, params={"name": name, "count": 5}, timeout=10)
-    r.raise_for_status()
+    try:
+        r = requests.get(GEOCODE_URL, params={"name": name, "count": 5}, timeout=10)
+        r.raise_for_status()
+    except requests.RequestException:
+        return jsonify({"error": "Search is temporarily unavailable"}), 502
     data = r.json()
     results = [
         {
@@ -75,19 +106,23 @@ def search_city():
 
 
 @app.route("/api/reverse-geocode")
+@limiter.limit("10 per minute")
+@limiter.limit("1 per second", key_func=lambda: "global-nominatim")
 def reverse_geocode():
-    lat = request.args.get("lat")
-    lon = request.args.get("lon")
-    if not lat or not lon:
-        return jsonify({"error": "lat and lon are required"}), 400
+    lat, lon = parse_lat_lon()
+    if lat is None or lon is None:
+        return jsonify({"error": "lat and lon must be valid coordinates"}), 400
 
-    r = requests.get(
-        REVERSE_GEOCODE_URL,
-        params={"format": "json", "lat": lat, "lon": lon, "zoom": 14},
-        headers=NOMINATIM_HEADERS,
-        timeout=10,
-    )
-    r.raise_for_status()
+    try:
+        r = requests.get(
+            REVERSE_GEOCODE_URL,
+            params={"format": "json", "lat": lat, "lon": lon, "zoom": 14},
+            headers=NOMINATIM_HEADERS,
+            timeout=10,
+        )
+        r.raise_for_status()
+    except requests.RequestException:
+        return jsonify({"error": "Location lookup is temporarily unavailable"}), 502
     data = r.json()
     address = data.get("address", {})
     name = (
@@ -105,11 +140,11 @@ def reverse_geocode():
 
 
 @app.route("/api/weather")
+@limiter.limit("20 per minute")
 def weather():
-    lat = request.args.get("lat")
-    lon = request.args.get("lon")
-    if not lat or not lon:
-        return jsonify({"error": "lat and lon are required"}), 400
+    lat, lon = parse_lat_lon()
+    if lat is None or lon is None:
+        return jsonify({"error": "lat and lon must be valid coordinates"}), 400
 
     params = {
         "latitude": lat,
@@ -123,8 +158,11 @@ def weather():
         "timezone": "auto",
         "forecast_days": 8,
     }
-    r = requests.get(FORECAST_URL, params=params, timeout=10)
-    r.raise_for_status()
+    try:
+        r = requests.get(FORECAST_URL, params=params, timeout=10)
+        r.raise_for_status()
+    except requests.RequestException:
+        return jsonify({"error": "Weather data is temporarily unavailable"}), 502
     data = r.json()
 
     aq_params = {
