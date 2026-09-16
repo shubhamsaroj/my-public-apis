@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather — Ad-Free</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Weather</h1>
+    <div class="search-row">
+      <div class="search-box">
+        <input id="search-input" type="text" placeholder="Search city..." autocomplete="off">
+        <div id="search-results" class="search-results"></div>
+      </div>
+      <button id="locate-btn" title="Use my location">📍 Use my location</button>
+    </div>
+    <p id="locate-error" class="locate-error hidden"></p>
+  </header>
+
+  <main id="content" class="hidden">
+    <section class="current">
+      <div class="location" id="location-name"></div>
+      <div class="temp-row">
+        <span id="current-temp" class="current-temp"></span>
+        <span id="current-desc" class="current-desc"></span>
+      </div>
+      <div class="meta-row">
+        <span id="feels-like"></span>
+        <span id="humidity"></span>
+        <span id="wind"></span>
+        <span id="pressure"></span>
+      </div>
+    </section>
+
+    <section class="stat-cards">
+      <div class="stat-card" id="aqi-card">
+        <div class="stat-label">Air Quality</div>
+        <div class="stat-value" id="aqi-value">-</div>
+        <div class="stat-sub" id="aqi-label">-</div>
+      </div>
+      <div class="stat-card" id="uv-card">
+        <div class="stat-label">UV Index</div>
+        <div class="stat-value" id="uv-value">-</div>
+        <div class="stat-sub" id="uv-label">-</div>
+      </div>
+      <div class="stat-card" id="sun-card">
+        <div class="stat-label">Sunrise / Sunset</div>
+        <div class="stat-value stat-value-sm" id="sun-value">-</div>
+      </div>
+    </section>
+
+    <section class="hourly">
+      <div class="hourly-heading">
+        <h2>Hourly forecast</h2>
+        <span id="hourly-date" class="hourly-date"></span>
+        <button id="back-to-today" class="back-to-today hidden">Back to today</button>
+      </div>
+      <canvas id="hourly-chart" height="140"></canvas>
+      <h3 class="sub-heading">UV Index through the day</h3>
+      <canvas id="uv-chart" height="100"></canvas>
+      <div id="hourly-list" class="hourly-list"></div>
+    </section>
+
+    <section class="daily">
+      <h2>Next 7 days</h2>
+      <div id="daily-list" class="daily-list"></div>
+    </section>
+  </main>
+
+  <p id="empty-state" class="empty-state">Search for a city to see its weather.</p>
+
+  <footer class="app-footer">
+    Build by -
+    <a href="https://www.linkedin.com/in/shubham-saroj-devops-engineer/" target="_blank" rel="noopener noreferrer">Shubham Saroj</a>
+  </footer>
+</div>
+
+<div id="detail-modal" class="modal hidden">
+  <div class="modal-backdrop"></div>
+  <div class="modal-card">
+    <button id="modal-close" class="modal-close">&times;</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
