@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- soft glow -->
+    <path android:pathData="M27,46a21,21 0,1 0,42 0a21,21 0,1 0,-42 0z" android:fillColor="#33FFC44D" />
+    <!-- sun -->
+    <path android:pathData="M33,46a15,15 0,1 0,30 0a15,15 0,1 0,-30 0z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="33" android:startY="31" android:endX="63" android:endY="61">
+                <item android:offset="0" android:color="#FFFFE680" />
+                <item android:offset="1" android:color="#FFFFA42E" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- glass cloud -->
+    <path android:pathData="M48,76h20.8a9.6,9.6 0,0 0,1.2 -19.12A12.8,12.8 0,0 0,45.76 60a8,8 0,0 0,2.24 16z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="54" android:startY="48" android:endX="54" android:endY="76">
+                <item android:offset="0" android:color="#F2FFFFFF" />
+                <item android:offset="1" android:color="#CCD5E1F7" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M48,76h20.8a9.6,9.6 0,0 0,1.2 -19.12A12.8,12.8 0,0 0,45.76 60a8,8 0,0 0,2.24 16z" android:fillColor="#00000000" android:strokeColor="#80FFFFFF" android:strokeWidth="0.8" />
+</vector>

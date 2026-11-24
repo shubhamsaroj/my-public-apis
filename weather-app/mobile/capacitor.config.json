@@ -1,0 +1,29 @@
+{
+  "appId": "com.techbyshubhamsaroj.weatherwise",
+  "appName": "Weatherwise",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": false
+  },
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false,
+      "launchShowDuration": 0,
+      "backgroundColor": "#0b1430",
+      "showSpinner": false
+    },
+    "SystemBars": {
+      "insetsHandling": "css",
+      "style": "DARK",
+      "initialViewportFitValueHint": "cover"
+    },
+    "CapacitorHttp": {
+      "enabled": false
+    }
+  }
+}
